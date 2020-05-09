@@ -124,6 +124,16 @@ const MessageHandlers = {
 		broadcastRoomState(io, rm, MESSAGE.RETURN_TO_SETUP);
 	},
 
+	[MESSAGE.VOTE](io, sock, data) {
+		GamePrecond.sockHasUser(sock);
+		GamePrecond.userIsInARoom(sock.user);
+		GamePrecond.gameInProgress(sock.user.gameRoom);
+		GamePrecond.gameIsVoting(sock.user.gameRoom);
+		let rm = sock.user.gameRoom;
+		rm.addVote(data.votedPlayer);
+		broadcastRoomState(io, rm, MESSAGE.VOTE);
+	},
+
 	disconnect(io, sock, data) {
 		let user = sock.user;
 		if (user) {
@@ -223,6 +233,11 @@ const GamePrecond = {
 	gameInProgress(room) {
 		if (!room.isGameInProgress()) {
 			throw new GameError('Game must be in progress');
+		}
+	},
+	gameIsVoting(room) {
+		if (!room.isVoting()) {
+			throw new GameError('Game must be in voting phase');
 		}
 	},
 	gameNotInProgress(room) {

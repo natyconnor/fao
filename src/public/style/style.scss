@@ -249,9 +249,10 @@ canvas#new-paint {
 	}
 }
 
-#side-player-statuses {
+#side-player-statuses, #side-votes {
 	position: absolute;
 	word-break: break-all;
+	padding: 20px;
 }
 ul.player-statuses-list {
 	text-align: left;
@@ -267,6 +268,13 @@ ul.player-statuses-list {
 		height: 20px;
 		margin-right: 4px;
 	}
+}
+
+#side-votes {
+	right: 0;
+}
+ul.votes-list {
+	text-align: right;
 }
 
 #drawing-actions {

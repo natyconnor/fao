@@ -12,6 +12,7 @@ function generateClientGameState() {
 		hint: undefined,
 		fakerName: undefined,
 		strokes: [],
+		votes: {},
 
 		getUsernames() {
 			return this.users.map((u) => u.name);

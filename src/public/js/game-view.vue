@@ -38,6 +38,9 @@
 				<div id="game-info" class="stripe-content canvas-aligned">
 					<h1 class="prompt" v-show="promptVisible">{{ promptText }}</h1>
 					<h2 class="current-turn" :style="{ color: userColor }">{{ whoseTurnText }}</h2>
+					<h3 class="end-game-info" v-show="roundOver">
+						{{ gameOverText }}
+					</h3>
 				</div>
 			</div>
 			<div class="stripe flex-center">
@@ -69,7 +72,7 @@
 						<button
 							class="btn primary submit-drawing"
 							@click="submit"
-							v-show="!roundOver"
+							v-show="!roundOver && !isVoting"
 							:disabled="!actionsEnabled"
 						>
 							Submit
@@ -77,10 +80,31 @@
 						<button
 							class="btn secondary undo-drawing"
 							@click="undo"
-							v-show="!roundOver"
+							v-show="!roundOver && !isVoting"
 							:disabled="!actionsEnabled"
 						>
 							Undo
+						</button>
+						<select
+							v-model="votedPlayer"
+							v-if="isVoting"
+						>
+							<option disabled value="">Pick your vote</option>
+							<option
+								v-for="user in otherUsers"
+								:key="'0' + user.name"
+								:value="user.name"
+							>
+								{{ user.name }}
+							</option>
+						</select>
+						<button
+							class="btn primary vote"
+							@click="vote"
+							v-show="isVoting"
+							:disabled="!isVoting || !votedPlayer || submittedVote"
+						>
+							Vote
 						</button>
 					</div>
 					<div id="drawing-actions-left" class="fill-space">
@@ -98,6 +122,12 @@
 		>
 			<PlayerStatusesList :users="gameState.users" />
 		</div>
+		<div
+			id="side-votes"
+			v-show="isVoting || roundOver"
+		>
+			<Votes :votes="gameState.votes" />
+		</div>
 	</div>
 </template>
 
@@ -114,6 +144,7 @@ import RoomInfo from './room-info';
 import Confirmation from './confirmation';
 import drawingPad from './drawing-pad';
 import PlayerStatusesList from './player-statuses-list';
+import Votes from './votes';
 
 const CanvasState = {
 	EMPTY: 'EMPTY',
@@ -176,6 +207,7 @@ export default {
 		RoomInfo,
 		Confirmation,
 		PlayerStatusesList,
+		Votes,
 	},
 	props: {
 		gameConnection: {
@@ -225,6 +257,8 @@ export default {
 			],
 			roomInfoDialogVisible: false,
 			playerStatusesListMaxWidth: 0,
+			votedPlayer: '',
+			submittedVote: false,
 		};
 	},
 	computed: {
@@ -232,15 +266,38 @@ export default {
 			return `${this.gameState.keyword} (${this.gameState.hint})`;
 		},
 		whoseTurnText() {
-			return this.gameState.phase === GAME_PHASE.VOTE
-				? 'Time to vote!'
-				: `${this.gameState.whoseTurn}'s turn`;
+			switch (this.gameState.phase) {
+				case GAME_PHASE.VOTE:
+					return 'Time to vote!';
+				case GAME_PHASE.END:
+					return 'Game Over!';
+				default:
+					return Store.myTurn()
+						? 'Your Turn!'
+						: `${this.gameState.whoseTurn}'s turn`;
+			}
+		},
+		gameOverText() {
+			const userIsFaker = this.gameState.fakerName === Store.getMyUsername();
+			if (this.gameState.fakerCaught) {
+				if (userIsFaker) {
+					return 'You were caught! What do you think the word is?';
+				}
+				return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName;
+			}
+			if (userIsFaker) {
+				return '😎 Nice job! No one found you out...';
+			}
+			return '🤦‍♂️ Oh no, you were wrong! The Fake Artist was ' + this.gameState.fakerName;
 		},
 		userColor() {
 			return this.gameState.getUserColor(this.gameState.whoseTurn);
 		},
-		roundOver() {
+		isVoting() {
 			return this.gameState.phase === GAME_PHASE.VOTE;
+		},
+		roundOver() {
+			return this.gameState.phase === GAME_PHASE.END;
 		},
 		actionsEnabled() {
 			return (
@@ -250,6 +307,9 @@ export default {
 		roundAndTurn() {
 			return this.gameState.round + '-' + this.gameState.turn;
 		},
+		otherUsers() {
+			return this.gameState.users.filter(user => user.name !== Store.getMyUsername());
+		}
 	},
 	watch: {
 		roundAndTurn() {
@@ -281,6 +341,8 @@ export default {
 			} else {
 				this.canvasState = CanvasState.SPECTATE;
 			}
+			this.votedPlayer = '';
+			this.submittedVote = false;
 		},
 		undo() {
 			this.stroke.reset();
@@ -294,6 +356,10 @@ export default {
 				this.stroke.reset();
 				this.canvasState = CanvasState.SPECTATE;
 			}
+		},
+		vote() {
+			Store.submitVote(this.votedPlayer);
+			this.submittedVote = true;
 		},
 		newRound() {
 			Store.submitStartGame();

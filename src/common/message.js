@@ -9,6 +9,7 @@ const MESSAGE = {
 	'NEW_TURN': 'NEW_TURN',
 	'SKIP_ROUND': 'SKIP_ROUND',
 	'RETURN_TO_SETUP': 'RETURN_TO_SETUP',
+	'VOTE': 'VOTE',
 };
 
 export default MESSAGE;

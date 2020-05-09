@@ -17,6 +17,7 @@ const Store = {
 		createWarning: undefined,
 		joinWarning: undefined,
 		gameConnection: CONNECTION_STATE.DISCONNECT,
+		votes: {},
 	},
 	setUsername(username) {
 		this.state.username = username;
@@ -59,8 +60,18 @@ const Store = {
 			this.state.gameState.phase === GAME_PHASE.PLAY
 		);
 	},
+	getMyUsername() {
+		return this.state.username;
+	},
 	setWarning(warningName, message) {
 		this.state[warningName] = message;
+	},
+	addVote(newVote) {
+		if (this.state.votes[newVote]) {
+			this.state.votes[newVote] += 1;
+		}else{
+			this.state.votes[newVote] = 1;
+		}
 	},
 	submitCreateGame,
 	submitJoinGame,
@@ -69,6 +80,7 @@ const Store = {
 	submitStroke,
 	submitSkipRound,
 	submitReturnToSetup,
+	submitVote,
 };
 
 function handleSocket(messageName, handler, errHandler) {
@@ -126,6 +138,17 @@ handleSocket(MESSAGE.USER_LEFT);
 handleSocket(MESSAGE.START_GAME);
 handleSocket(MESSAGE.NEW_TURN);
 handleSocket(MESSAGE.RETURN_TO_SETUP);
+handleSocket(
+	MESSAGE.VOTE,
+	function (data) {
+		console.log("handleSocket with vote message");
+		console.log(data)
+		Store.addVote(data.votedPlayer);
+	},
+	function(errMsg) {
+		Store.setWarning('voteWarning', errMsg);
+	}
+);
 
 const usernameValidationWarning =
 	'Username must be 1-15 characters long, and can only contain alphanumerics and spaces';
@@ -172,6 +195,12 @@ function submitSkipRound() {
 }
 function submitReturnToSetup() {
 	socket.emit(MESSAGE.RETURN_TO_SETUP);
+}
+function submitVote(votedPlayer) {
+	console.log("submitting vote message");
+	socket.emit(MESSAGE.VOTE, {
+		votedPlayer: votedPlayer,
+	});
 }
 
 socket.on('disconnect', function() {

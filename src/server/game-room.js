@@ -22,6 +22,9 @@ class GameRoom {
 		this.faker = undefined;
 
 		this.strokes = [];
+
+		this.votes = {};
+		this.fakerCaught = undefined;
 	}
 	addUser(user, isHost = false) {
 		if (this.isFull()) {
@@ -64,6 +67,8 @@ class GameRoom {
 		this.hint = prompt.hint;
 		this.faker = Util.randomItemFrom(this.users);
 		this.strokes = [];
+		this.votes = {};
+		this.fakerCaught = undefined;
 		console.log(`Rm${this.roomCode} New round`);
 	}
 	invokeSetup() {
@@ -102,8 +107,37 @@ class GameRoom {
 		}
 		return undefined;
 	}
+	addVote(votedPlayer) {
+		if (this.votes[votedPlayer]) {
+			this.votes[votedPlayer] += 1;
+		} else {
+			this.votes[votedPlayer] = 1;
+		}
+		if (this.getNumVotes() === this.users.length) {
+			this.phase = GAME_PHASE.END;
+			console.log(this.faker.name);
+			console.log(this.getMaxVotesForArtist());
+			console.log(this.votes[this.faker.name]);
+			if (this.votes[this.faker.name] > this.getMaxVotesForArtist()) {
+				this.fakerCaught = true;
+			}else {
+				this.fakerCaught = false;
+			}
+		}
+	}
+	getNumVotes() {
+		return Object.values(this.votes).reduce((a, b) => a + b, 0);
+	}
+	getMaxVotesForArtist() {
+		return Object.entries(this.votes)
+			.filter(vote => vote[0] !== this.faker.name)
+			.reduce((a, b) => a[1] > b[1] ? a[1] : b[1], 0);
+	}
 	isGameInProgress() {
 		return this.phase === GAME_PHASE.PLAY || this.phase === GAME_PHASE.VOTE;
+	}
+	isVoting() {
+		return this.phase === GAME_PHASE.VOTE;
 	}
 	isFull() {
 		return this.users.length >= MAX_USERS;
@@ -130,6 +164,8 @@ const ClientAdapter = {
 			hint: gameRoom.hint,
 			fakerName: gameRoom.faker ? gameRoom.faker.name : undefined,
 			strokes: gameRoom.strokes,
+			votes: gameRoom.votes,
+			fakerCaught: gameRoom.fakerCaught,
 		};
 		if (pickFields) {
 			res = _.pick(res, pickFields);
