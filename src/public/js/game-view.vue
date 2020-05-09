@@ -86,6 +86,7 @@
 							Undo
 						</button>
 						<select
+							class="select"
 							v-model="votedPlayer"
 							v-if="isVoting"
 						>
