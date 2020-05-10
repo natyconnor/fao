@@ -39,7 +39,7 @@
 					<h1 class="prompt" v-show="promptVisible">{{ promptText }}</h1>
 					<h2 class="current-turn" :style="{ color: userColor }">{{ whoseTurnText }}</h2>
 					<h3 class="end-game-info" v-show="roundOver">
-						{{ gameOverText }}
+						{{ gameOverText() }}
 					</h3>
 				</div>
 			</div>
@@ -278,19 +278,6 @@ export default {
 						: `${this.gameState.whoseTurn}'s turn`;
 			}
 		},
-		gameOverText() {
-			const userIsFaker = this.gameState.fakerName === Store.getMyUsername();
-			if (this.gameState.fakerCaught) {
-				if (userIsFaker) {
-					return 'You were caught! What do you think the word is?';
-				}
-				return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName;
-			}
-			if (userIsFaker) {
-				return '😎 Nice job! No one found you out...';
-			}
-			return '🤦‍♂️ Oh no, you were wrong! The Fake Artist was ' + this.gameState.fakerName;
-		},
 		userColor() {
 			return this.gameState.getUserColor(this.gameState.whoseTurn);
 		},
@@ -321,6 +308,20 @@ export default {
 		},
 	},
 	methods: {
+		gameOverText() {
+			console.log(this.gameState);
+			const userIsFaker = this.gameState.fakerName === Store.getMyUsername();
+			if (this.gameState.fakerCaught) {
+				if (userIsFaker) {
+					return 'You were caught! What do you think the word is?';
+				}
+				return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName;
+			}
+			if (userIsFaker) {
+				return '😎 Nice job! No one found you out...';
+			}
+			return '🤦‍♂️ Oh no, you were wrong! The Fake Artist was ' + this.gameState.fakerName;
+		},
 		reset() {
 			if (this.gameState.turn === 1) {
 				drawingPad.clearLayer(Layer.BOTTOM);
