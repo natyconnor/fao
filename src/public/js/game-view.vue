@@ -127,7 +127,11 @@
 			id="side-votes"
 			v-show="isVoting || roundOver"
 		>
-			<Votes :votes="gameState.votes" />
+			<h1>Votes</h1>
+			<div v-show="isVoting">
+				{{ waitingForVotesText }}
+			</div>
+			<VotesList v-show="roundOver" :votes="gameState.votes" />
 		</div>
 	</div>
 </template>
@@ -145,7 +149,7 @@ import RoomInfo from './room-info';
 import Confirmation from './confirmation';
 import drawingPad from './drawing-pad';
 import PlayerStatusesList from './player-statuses-list';
-import Votes from './votes';
+import VotesList from './votes-list';
 
 const CanvasState = {
 	EMPTY: 'EMPTY',
@@ -208,7 +212,7 @@ export default {
 		RoomInfo,
 		Confirmation,
 		PlayerStatusesList,
-		Votes,
+		VotesList,
 	},
 	props: {
 		gameConnection: {
@@ -278,6 +282,10 @@ export default {
 						: `${this.gameState.whoseTurn}'s turn`;
 			}
 		},
+		waitingForVotesText() {
+			const numVotesLeft = this.gameState.users.length - Store.getNumVotes(this.gameState.votes);
+			return 'Waiting for ' + numVotesLeft + " players to vote...";
+		},
 		userColor() {
 			return this.gameState.getUserColor(this.gameState.whoseTurn);
 		},
@@ -309,7 +317,6 @@ export default {
 	},
 	methods: {
 		gameOverText() {
-			console.log(this.gameState);
 			const userIsFaker = this.gameState.fakerName === Store.getMyUsername();
 			if (this.gameState.fakerCaught) {
 				if (userIsFaker) {

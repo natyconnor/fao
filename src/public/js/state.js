@@ -73,6 +73,9 @@ const Store = {
 			this.state.votes[newVote] = 1;
 		}
 	},
+	getNumVotes() {
+		return Object.values(this.state.gameState.votes).reduce((a, b) => a + b, 0);
+	},
 	submitCreateGame,
 	submitJoinGame,
 	submitLeaveGame,
