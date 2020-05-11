@@ -17,7 +17,6 @@ const Store = {
 		createWarning: undefined,
 		joinWarning: undefined,
 		gameConnection: CONNECTION_STATE.DISCONNECT,
-		votes: {},
 	},
 	setUsername(username) {
 		this.state.username = username;
@@ -65,13 +64,6 @@ const Store = {
 	},
 	setWarning(warningName, message) {
 		this.state[warningName] = message;
-	},
-	addVote(newVote) {
-		if (this.state.votes[newVote]) {
-			this.state.votes[newVote] += 1;
-		}else{
-			this.state.votes[newVote] = 1;
-		}
 	},
 	getNumVotes() {
 		return Object.values(this.state.gameState.votes).reduce((a, b) => a + b, 0);
@@ -141,17 +133,7 @@ handleSocket(MESSAGE.USER_LEFT);
 handleSocket(MESSAGE.START_GAME);
 handleSocket(MESSAGE.NEW_TURN);
 handleSocket(MESSAGE.RETURN_TO_SETUP);
-handleSocket(
-	MESSAGE.VOTE,
-	function (data) {
-		console.log("handleSocket with vote message");
-		console.log(data)
-		Store.addVote(data.votedPlayer);
-	},
-	function(errMsg) {
-		Store.setWarning('voteWarning', errMsg);
-	}
-);
+handleSocket(MESSAGE.VOTE);
 
 const usernameValidationWarning =
 	'Username must be 1-15 characters long, and can only contain alphanumerics and spaces';

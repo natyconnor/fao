@@ -115,9 +115,6 @@ class GameRoom {
 		}
 		if (this.getNumVotes() === this.users.length) {
 			this.phase = GAME_PHASE.END;
-			console.log(this.faker.name);
-			console.log(this.getMaxVotesForArtist());
-			console.log(this.votes[this.faker.name]);
 			if (this.votes[this.faker.name] > this.getMaxVotesForArtist()) {
 				this.fakerCaught = true;
 			}else {
