@@ -320,14 +320,14 @@ export default {
 			const userIsFaker = this.gameState.fakerName === Store.getMyUsername();
 			if (this.gameState.fakerCaught) {
 				if (userIsFaker) {
-					return 'You were caught! What do you think the word is?';
+					return '🙀 You were caught! What do you think the word is? 🤔';
 				}
 				return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName;
 			}
 			if (userIsFaker) {
 				return '😎 Nice job! No one found you out...';
 			}
-			return '🤦‍♂️ Oh no, you were wrong! The Fake Artist was ' + this.gameState.fakerName;
+			return '🤦‍♂️ Oh no, everyone voted wrong! The Fake Artist was ' + this.gameState.fakerName;
 		},
 		reset() {
 			if (this.gameState.turn === 1) {
