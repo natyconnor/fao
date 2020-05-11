@@ -121,6 +121,7 @@
 				maxWidth: `${playerStatusesListMaxWidth}px`,
 			}"
 		>
+			<h1>Players</h1>
 			<PlayerStatusesList :users="gameState.users" />
 		</div>
 		<div
