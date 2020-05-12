@@ -38,6 +38,9 @@
 				<div id="game-info" class="stripe-content canvas-aligned">
 					<h1 class="prompt" v-show="promptVisible">{{ promptText }}</h1>
 					<h2 class="current-turn" :style="{ color: userColor }">{{ whoseTurnText }}</h2>
+					<h3 class="fake-guessing-info" v-show="isFakerGuessing && !userIsFaker">
+						Fake Artist is guessing...
+					</h3>
 					<h3 class="end-game-info" v-show="roundOver">
 						{{ gameOverText() }}
 					</h3>
@@ -72,7 +75,7 @@
 						<button
 							class="btn primary submit-drawing"
 							@click="submit"
-							v-show="!roundOver && !isVoting"
+							v-show="isDrawing"
 							:disabled="!actionsEnabled"
 						>
 							Submit
@@ -80,7 +83,7 @@
 						<button
 							class="btn secondary undo-drawing"
 							@click="undo"
-							v-show="!roundOver && !isVoting"
+							v-show="isDrawing"
 							:disabled="!actionsEnabled"
 						>
 							Undo
@@ -126,13 +129,17 @@
 		</div>
 		<div
 			id="side-votes"
-			v-show="isVoting || roundOver"
+			v-show="isDoneDrawing"
+			v-if="playerStatusesListMaxWidth > 0"
+			:style="{
+				maxWidth: `${playerStatusesListMaxWidth}px`,
+			}"
 		>
 			<h1>Votes</h1>
 			<div v-show="isVoting">
 				{{ waitingForVotesText }}
 			</div>
-			<VotesList v-show="roundOver" :votes="gameState.votes" />
+			<VotesList v-show="isFakerGuessing || roundOver" :votes="gameState.votes" />
 		</div>
 	</div>
 </template>
@@ -271,10 +278,19 @@ export default {
 		promptText() {
 			return `${this.gameState.keyword} (${this.gameState.hint})`;
 		},
+		userIsFaker() {
+			return this.gameState.fakerName === Store.getMyUsername();
+		},
 		whoseTurnText() {
 			switch (this.gameState.phase) {
 				case GAME_PHASE.VOTE:
 					return 'Time to vote!';
+				case GAME_PHASE.FAKER_GUESS:
+					if (this.userIsFaker) {
+						return '🙀 You were caught! What do you think the word is? 🤔';
+					}
+					return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName
+						+ ' but they get to try and guess the word...';
 				case GAME_PHASE.END:
 					return 'Game Over!';
 				default:
@@ -290,8 +306,18 @@ export default {
 		userColor() {
 			return this.gameState.getUserColor(this.gameState.whoseTurn);
 		},
+		isDrawing() {
+			return this.gameState.phase === GAME_PHASE.PLAY;
+		},
 		isVoting() {
 			return this.gameState.phase === GAME_PHASE.VOTE;
+		},
+		isDoneDrawing() {
+			// any phase after drawing
+			return this.gameState.phase === GAME_PHASE.VOTE || this.gameState.phase === GAME_PHASE.FAKER_GUESS || this.gameState.phase === GAME_PHASE.END;
+		},
+		isFakerGuessing() {
+			return this.gameState.phase === GAME_PHASE.FAKER_GUESS;
 		},
 		roundOver() {
 			return this.gameState.phase === GAME_PHASE.END;
@@ -318,17 +344,16 @@ export default {
 	},
 	methods: {
 		gameOverText() {
-			const userIsFaker = this.gameState.fakerName === Store.getMyUsername();
 			if (this.gameState.fakerCaught) {
-				if (userIsFaker) {
-					return '🙀 You were caught! What do you think the word is? 🤔';
+				if (this.userIsFaker) {
+					return '😭 Nope, the word was ' + this.gameState.keyword;
 				}
-				return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName;
+				return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName + ' and they didn\'t figure out the word!';
 			}
-			if (userIsFaker) {
+			if (this.userIsFaker) {
 				return '😎 Nice job! No one found you out...';
 			}
-			return '🤦‍♂️ Oh no, everyone voted wrong! The Fake Artist was ' + this.gameState.fakerName;
+			return '🤦‍♂️ Oh no, the votes were wrong! The Fake Artist was ' + this.gameState.fakerName;
 		},
 		reset() {
 			if (this.gameState.turn === 1) {

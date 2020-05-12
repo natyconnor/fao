@@ -312,7 +312,7 @@ function broadcastRoomState(io, room, messageName, addtlProcessFn) {
 		}
 
 		let res;
-		if (room.phase === GAME_PHASE.PLAY || room.phase === GAME_PHASE.VOTE) {
+		if (room.phase === GAME_PHASE.PLAY || room.phase === GAME_PHASE.VOTE || room.phase === GAME_PHASE.FAKER_GUESS) {
 			res = {
 				roomState: room.faker && room.faker.name === u.name ? fakerView : artistView,
 			};

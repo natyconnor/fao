@@ -114,11 +114,12 @@ class GameRoom {
 			this.votes[votedPlayer] = 1;
 		}
 		if (this.getNumVotes() === this.users.length) {
-			this.phase = GAME_PHASE.END;
 			if (this.votes[this.faker.name] > this.getMaxVotesForArtist()) {
 				this.fakerCaught = true;
+				this.phase = GAME_PHASE.FAKER_GUESS;
 			}else {
 				this.fakerCaught = false;
+				this.phase = GAME_PHASE.END;
 			}
 		}
 	}
@@ -131,7 +132,7 @@ class GameRoom {
 			.reduce((a, b) => a[1] > b[1] ? a[1] : b[1], 0);
 	}
 	isGameInProgress() {
-		return this.phase === GAME_PHASE.PLAY || this.phase === GAME_PHASE.VOTE;
+		return this.phase === GAME_PHASE.PLAY || this.phase === GAME_PHASE.VOTE || this.phase === GAME_PHASE.VOTE || this.phase === GAME_PHASE.FAKER_GUESS;
 	}
 	isVoting() {
 		return this.phase === GAME_PHASE.VOTE;
