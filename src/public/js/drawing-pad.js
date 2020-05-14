@@ -2,12 +2,12 @@ import Layer from './layer';
 import RelativePoint from '../../common/relative-point';
 
 /* Canvas scaling */
-const HEIGHT_RATIO = 8 / 6;
+const HEIGHT_RATIO = 6 / 5;
 const MAX_CANVAS_W = 650;
 const MAX_CANVAS_H = MAX_CANVAS_W * HEIGHT_RATIO;
 const BASE_STROKE_WIDTH = 10;
 const CANVAS_MARGIN_HOR = 20;
-const CANVAS_MARGIN_VER = 96;
+const CANVAS_MARGIN_VER = 120;
 
 const drawingPad = {
 	[Layer.TOP]: {
@@ -45,6 +45,7 @@ const drawingPad = {
 		this[Layer.BOTTOM].canvas.width = this.canvasWidth;
 		let targetHeight = this.canvasWidth * HEIGHT_RATIO;
 
+		console.log(`WidthByWidth:${canvasWidthScaledByViewportWidth} WidthByHeight: ${canvasWidthScaledByViewportHeight} Width:${this.canvasWidth} Height:${targetHeight}`);
 		this.canvasHeight = targetHeight;
 		this.canvasDiv.style.width = this.canvasWidth + 'px';
 		this.canvasDiv.style.height = targetHeight + 'px';

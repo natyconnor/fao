@@ -228,6 +228,10 @@ canvas#new-paint {
 	text-align: left;
 	font-family: var(--body-font);
 
+	h1.username {
+		margin: 0 0 0 0;
+	}
+
 	h1.prompt {
 		color: var(--artist4);
 		font-size: 24px;
@@ -252,7 +256,7 @@ canvas#new-paint {
 #side-player-statuses, #side-votes {
 	position: absolute;
 	word-break: break-word;
-	padding: 20px;
+	padding: 20px 10px;
 }
 ul.player-statuses-list {
 	text-align: left;

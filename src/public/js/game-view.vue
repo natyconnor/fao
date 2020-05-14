@@ -36,6 +36,7 @@
 			</confirmation>
 			<div class="stripe">
 				<div id="game-info" class="stripe-content canvas-aligned">
+					<h1 class="username">{{ username }}</h1>
 					<h1 class="prompt" v-show="promptVisible">{{ promptText }}</h1>
 					<h2 class="current-turn" :style="{ color: userColor }">{{ whoseTurnText }}</h2>
 					<h3 class="fake-guessing-info" v-show="isFakerGuessing && !userIsFaker">
@@ -294,6 +295,9 @@ export default {
 	computed: {
 		promptText() {
 			return `${this.gameState.keyword} (${this.gameState.hint})`;
+		},
+		username() {
+			return Store.getMyUsername();
 		},
 		userIsFaker() {
 			return this.gameState.fakerName === Store.getMyUsername();
