@@ -76,6 +76,7 @@ const Store = {
 	submitSkipRound,
 	submitReturnToSetup,
 	submitVote,
+	submitGuess,
 };
 
 function handleSocket(messageName, handler, errHandler) {
@@ -134,6 +135,7 @@ handleSocket(MESSAGE.START_GAME);
 handleSocket(MESSAGE.NEW_TURN);
 handleSocket(MESSAGE.RETURN_TO_SETUP);
 handleSocket(MESSAGE.VOTE);
+handleSocket(MESSAGE.GUESS);
 
 const usernameValidationWarning =
 	'Username must be 1-15 characters long, and can only contain alphanumerics and spaces';
@@ -185,6 +187,11 @@ function submitVote(votedPlayer) {
 	console.log("submitting vote message");
 	socket.emit(MESSAGE.VOTE, {
 		votedPlayer: votedPlayer,
+	});
+}
+function submitGuess(guess) {
+	socket.emit(MESSAGE.GUESS, {
+		guess: guess,
 	});
 }
 

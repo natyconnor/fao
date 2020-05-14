@@ -10,6 +10,7 @@ const MESSAGE = {
 	'SKIP_ROUND': 'SKIP_ROUND',
 	'RETURN_TO_SETUP': 'RETURN_TO_SETUP',
 	'VOTE': 'VOTE',
+	'GUESS': 'GUESS',
 };
 
 export default MESSAGE;

@@ -25,6 +25,7 @@ class GameRoom {
 
 		this.votes = {};
 		this.fakerCaught = undefined;
+		this.fakerGuessedCorrectly = undefined;
 	}
 	addUser(user, isHost = false) {
 		if (this.isFull()) {
@@ -69,6 +70,7 @@ class GameRoom {
 		this.strokes = [];
 		this.votes = {};
 		this.fakerCaught = undefined;
+		this.fakerGuessedCorrectly = undefined;
 		console.log(`Rm${this.roomCode} New round`);
 	}
 	invokeSetup() {
@@ -123,6 +125,12 @@ class GameRoom {
 			}
 		}
 	}
+	submitGuess(guess) {
+		const normalizedGuess = Util.normalizeText(guess);
+		const normalizedKeyword = Util.normalizeText(this.keyword);
+		this.fakerGuessedCorrectly = normalizedGuess === normalizedKeyword;
+		this.phase = GAME_PHASE.END;
+	}
 	getNumVotes() {
 		return Object.values(this.votes).reduce((a, b) => a + b, 0);
 	}
@@ -132,7 +140,7 @@ class GameRoom {
 			.reduce((a, b) => a[1] > b[1] ? a[1] : b[1], 0);
 	}
 	isGameInProgress() {
-		return this.phase === GAME_PHASE.PLAY || this.phase === GAME_PHASE.VOTE || this.phase === GAME_PHASE.VOTE || this.phase === GAME_PHASE.FAKER_GUESS;
+		return this.phase === GAME_PHASE.PLAY || this.phase === GAME_PHASE.VOTE || this.phase === GAME_PHASE.FAKER_GUESS;
 	}
 	isVoting() {
 		return this.phase === GAME_PHASE.VOTE;
@@ -164,6 +172,7 @@ const ClientAdapter = {
 			strokes: gameRoom.strokes,
 			votes: gameRoom.votes,
 			fakerCaught: gameRoom.fakerCaught,
+			fakerGuessedCorrectly: gameRoom.fakerGuessedCorrectly,
 		};
 		if (pickFields) {
 			res = _.pick(res, pickFields);
@@ -177,7 +186,7 @@ const ClientAdapter = {
 	},
 	hideFaker(stateJson) {
 		let res = _.cloneDeep(stateJson);
-		res.fakerName = undefined;
+		res.fakerName = null; // null so empty value is sent to client to overwrite last round
 		return res;
 	},
 };

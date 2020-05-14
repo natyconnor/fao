@@ -31,4 +31,8 @@ function negligible(a, b, thresh = 0.0001) {
 	return Math.abs(a - b) < thresh;
 }
 
-export { randomInt, randomItemFrom, shuffle, validateUsername, capitalize, negligible };
+function normalizeText(text) {
+	return text.trim().toLowerCase().replace(/[^a-zA-Z]/, '');
+}
+
+export { randomInt, randomItemFrom, shuffle, validateUsername, capitalize, negligible, normalizeText };

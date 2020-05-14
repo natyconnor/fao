@@ -134,6 +134,16 @@ const MessageHandlers = {
 		broadcastRoomState(io, rm, MESSAGE.VOTE);
 	},
 
+	[MESSAGE.GUESS](io, sock, data) {
+		GamePrecond.sockHasUser(sock);
+		GamePrecond.userIsInARoom(sock.user);
+		GamePrecond.gameInProgress(sock.user.gameRoom);
+		// game is guessing
+		let rm = sock.user.gameRoom;
+		rm.submitGuess(data.guess);
+		broadcastRoomState(io, rm, MESSAGE.GUESS);
+	},
+
 	disconnect(io, sock, data) {
 		let user = sock.user;
 		if (user) {
@@ -310,11 +320,17 @@ function broadcastRoomState(io, room, messageName, addtlProcessFn) {
 			// disconnected user, skip
 			continue;
 		}
+		const userIsFaker = room.faker.name === u.name;
 
 		let res;
-		if (room.phase === GAME_PHASE.PLAY || room.phase === GAME_PHASE.VOTE || room.phase === GAME_PHASE.FAKER_GUESS) {
+		if (!userIsFaker && room.phase === GAME_PHASE.FAKER_GUESS) {
+			// if this isn't the faker and it's the guessing phase, we actually want to pass the whole state
 			res = {
-				roomState: room.faker && room.faker.name === u.name ? fakerView : artistView,
+				roomState: state,
+			}
+		}else if (room.isGameInProgress()) {
+			res = {
+				roomState: userIsFaker ? fakerView : artistView,
 			};
 		} else {
 			res = {

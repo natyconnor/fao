@@ -41,6 +41,22 @@
 					<h3 class="fake-guessing-info" v-show="isFakerGuessing && !userIsFaker">
 						Fake Artist is guessing...
 					</h3>
+					<div class="faker-guess-form" v-if="isFakerGuessing && userIsFaker">
+						<input
+							type="text"
+							class="faker-guess-input"
+							placeholder="Guess the word"
+							required
+							autocomplete="off"
+							v-model="fakerGuess"
+						/>
+						<button
+							class="btn primary vote"
+							@click="submitGuess"
+						>
+							Guess
+						</button>
+					</div>
 					<h3 class="end-game-info" v-show="roundOver">
 						{{ gameOverText() }}
 					</h3>
@@ -272,6 +288,7 @@ export default {
 			playerStatusesListMaxWidth: 0,
 			votedPlayer: '',
 			submittedVote: false,
+			fakerGuess: '',
 		};
 	},
 	computed: {
@@ -290,7 +307,7 @@ export default {
 						return '🙀 You were caught! What do you think the word is? 🤔';
 					}
 					return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName
-						+ ' but they get to try and guess the word...';
+						+ ', but they get to try and guess the word...';
 				case GAME_PHASE.END:
 					return 'Game Over!';
 				default:
@@ -346,12 +363,18 @@ export default {
 		gameOverText() {
 			if (this.gameState.fakerCaught) {
 				if (this.userIsFaker) {
+					if (this.gameState.fakerGuessedCorrectly) {
+						return '🧐 Nice you figured out the word!'
+					}
 					return '😭 Nope, the word was ' + this.gameState.keyword;
 				}
-				return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName + ' and they didn\'t figure out the word!';
+				if (this.gameState.fakerGuessedCorrectly) {
+					return '😖 Darn you caught them, but they guessed the word correctly!'
+				}
+				return '🕵️‍♂️ Great job, you caught the Fake Artist, ' + this.gameState.fakerName + ', and they didn\'t figure out the word!';
 			}
 			if (this.userIsFaker) {
-				return '😎 Nice job! No one found you out...';
+				return '😎 Nice job! Not enough people found you out...';
 			}
 			return '🤦‍♂️ Oh no, the votes were wrong! The Fake Artist was ' + this.gameState.fakerName;
 		},
@@ -378,6 +401,7 @@ export default {
 			}
 			this.votedPlayer = '';
 			this.submittedVote = false;
+			this.fakerGuess = '';
 		},
 		undo() {
 			this.stroke.reset();
@@ -395,6 +419,9 @@ export default {
 		vote() {
 			Store.submitVote(this.votedPlayer);
 			this.submittedVote = true;
+		},
+		submitGuess() {
+			Store.submitGuess(this.fakerGuess);
 		},
 		newRound() {
 			Store.submitStartGame();
