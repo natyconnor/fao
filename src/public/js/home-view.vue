@@ -17,10 +17,19 @@
 							>A Fake Artist Goes to New York</a
 						>.
 					</p>
+					<hr />
 					<p>
-						Contribute:
-						<a href="https://github.com/kcgidw/fao">Github</a>
+						Forked from
+						<a href="https://github.com/kcgidw/fao">kcgidw</a>
 					</p>
+					<p>
+						Play
+						<a href="https://kc-fakeartistonline.herokuapp.com/">Original Version</a>
+					<p>
+						Contribute to this branch:
+						<a href="https://github.com/natyconnor/fao">Github</a>
+					</p>
+					<hr />
 					<p>
 						Enjoy the game? Send a tip:
 						<a href="https://ko-fi.com/krackocloud">Ko-fi</a>
